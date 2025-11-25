@@ -1,0 +1,114 @@
+import { Transaction } from '@/constants/types';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+
+interface TransactionListProps {
+    transactions: Transaction[];
+    highlightedId?: string | null;
+}
+
+export interface TransactionListRef {
+    getItemY: (id: string) => number;
+}
+
+export const TransactionList = forwardRef<TransactionListRef, TransactionListProps>(({ transactions, highlightedId }, ref) => {
+    const itemPositions = useRef<Record<string, number>>({});
+
+    useImperativeHandle(ref, () => ({
+        getItemY: (id: string) => {
+            return itemPositions.current[id] || 0;
+        },
+        scrollToId: () => { } // Deprecated, handled by parent
+    }));
+
+    const handleLayout = (id: string, layout: { y: number }) => {
+        itemPositions.current[id] = layout.y;
+    };
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Recent Transactions</Text>
+            <View style={styles.listContent}>
+                {transactions.map((item) => (
+                    <View
+                        key={item.id}
+                        onLayout={(event) => handleLayout(item.id, event.nativeEvent.layout)}
+                        style={[styles.item, highlightedId === item.id && styles.highlightedItem]}
+                    >
+                        <View style={styles.left}>
+                            <Text style={styles.date}>{item.date}</Text>
+                            <Text style={styles.text} numberOfLines={1}>{item.text}</Text>
+                        </View>
+                        <View style={styles.right}>
+                            <Text style={[styles.amount, item.amount > 0 ? styles.positive : styles.negative]}>
+                                {item.amount.toLocaleString()} kr
+                            </Text>
+                            {item.category && <Text style={styles.category}>{item.category}</Text>}
+                        </View>
+                    </View>
+                ))}
+            </View>
+        </View>
+    );
+});
+
+const styles = StyleSheet.create({
+    container: {
+        marginTop: 20,
+    },
+    title: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 12,
+        paddingHorizontal: 4,
+    },
+    listContent: {
+        gap: 12,
+    },
+    item: {
+        backgroundColor: '#1f2937',
+        padding: 16,
+        borderRadius: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    highlightedItem: {
+        backgroundColor: '#374151', // Lighter gray for highlight
+        borderWidth: 1,
+        borderColor: '#60a5fa', // Blue border
+    },
+    left: {
+        flex: 1,
+        marginRight: 12,
+    },
+    right: {
+        alignItems: 'flex-end',
+    },
+    date: {
+        color: '#9ca3af',
+        fontSize: 12,
+        marginBottom: 4,
+    },
+    text: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    amount: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    category: {
+        color: '#6b7280',
+        fontSize: 12,
+        marginTop: 2,
+    },
+    positive: {
+        color: '#22c55e',
+    },
+    negative: {
+        color: '#ef4444',
+    },
+});

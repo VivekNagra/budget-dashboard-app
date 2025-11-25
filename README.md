@@ -1,50 +1,52 @@
-# Welcome to your Expo app 👋
+# Budget Dashboard
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+So I built this because I was tired of my bank's terrible mobile app. It gives me zero insights and just lists transactions in a boring list. I wanted to actually see where my money was going without exporting everything to Excel every single time.
 
-## Get started
+This is a personal finance dashboard built with React Native and Expo. It's designed to take a CSV export from your bank (specifically tailored for Danish bank formats right now because that is what I use) and turn it into something actually useful.
 
-1. Install dependencies
+## The Tech Stack
 
+I went with the Expo managed workflow because life is too short to debug native build errors.
+
+- **React Native & Expo**: The standard for cross-platform mobile dev.
+- **TypeScript**: Because I value my sanity and I like autocomplete.
+- **Expo Router**: File-based routing is just superior.
+- **react-native-gifted-charts**: I needed charts that look good and perform well. This library is solid.
+- **Papaparse**: For parsing the CSV files on the client side.
+
+## Features
+
+- **CSV Import**: Handles the weird Danish number formatting (1.234,50) and date formats (DD.MM.YYYY) automatically.
+- **Dashboard**: Gives you a quick overview of Income vs Expenses and your current disposable income.
+- **Swipeable Charts**:
+    - **Balance Trend**: A line chart that shows your account balance over the month. Great for seeing your burn rate.
+    - **Daily Spending**: A bar chart for seeing which days you went a bit too hard.
+- **Category Breakdown**: A pie chart that automatically categorizes stuff like Netto (Groceries) or DSB (Transport) based on keywords.
+- **Transaction List**: A scrollable list of all your transactions. You can tap on the "Biggest Deposit" or "Biggest Expense" cards to jump straight to them in the list.
+
+## How to Run It
+
+Standard node stuff. Make sure you have Node installed.
+
+1. Clone the repo.
+2. Install dependencies:
    ```bash
    npm install
    ```
-
-2. Start the app
-
+3. Start the dev server:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+You can run it in the iOS Simulator (press 'i') or on your physical device with the Expo Go app.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Future Plans
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+I am currently looking into parsing PDF statements directly because exporting CSVs is still a bit of a manual step I want to eliminate. PDF parsing in React Native is surprisingly annoying, but I am working on a solution using pdfjs-dist.
 
-## Get a fresh project
+Also planning to add:
+- Custom category rules (so you can map your own specific vendors).
+- Multi-month support (right now it focuses on the current month import).
+- Persistent storage (AsyncStorage or SQLite) so you do not have to re-import every time you open the app.
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Feel free to fork it if you want to add support for your own bank's CSV format. It is just a matter of tweaking the parser logic.
