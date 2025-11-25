@@ -42,11 +42,11 @@ You can run it in the iOS Simulator (press 'i') or on your physical device with 
 
 ## Future Plans
 
-I am currently looking into parsing PDF statements directly because exporting CSVs is still a bit of a manual step I want to eliminate. PDF parsing in React Native is surprisingly annoying, but I am working on a solution using pdfjs-dist.
+I am currently looking into parsing PDF statements directly because exporting CSVs is still a bit of a manual step I want to eliminate. I tried implementing this with `pdfjs-dist` but ran into some React Native compatibility headaches, so it's on the back burner for now. Might try a WebView approach later.
 
 Also planning to add:
 - Custom category rules (so you can map your own specific vendors).
 - Multi-month support (right now it focuses on the current month import).
 - Persistent storage (AsyncStorage or SQLite) so you do not have to re-import every time you open the app.
 
-Feel free to fork it if you want to add support for your own bank's CSV format. It is just a matter of tweaking the parser logic.
+

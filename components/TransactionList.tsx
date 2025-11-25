@@ -18,7 +18,6 @@ export const TransactionList = forwardRef<TransactionListRef, TransactionListPro
         getItemY: (id: string) => {
             return itemPositions.current[id] || 0;
         },
-        scrollToId: () => { } // Deprecated, handled by parent
     }));
 
     const handleLayout = (id: string, layout: { y: number }) => {
@@ -29,21 +28,21 @@ export const TransactionList = forwardRef<TransactionListRef, TransactionListPro
         <View style={styles.container}>
             <Text style={styles.title}>Recent Transactions</Text>
             <View style={styles.listContent}>
-                {transactions.map((item) => (
+                {transactions.map((transaction) => (
                     <View
-                        key={item.id}
-                        onLayout={(event) => handleLayout(item.id, event.nativeEvent.layout)}
-                        style={[styles.item, highlightedId === item.id && styles.highlightedItem]}
+                        key={transaction.id}
+                        onLayout={(event) => handleLayout(transaction.id, event.nativeEvent.layout)}
+                        style={[styles.item, highlightedId === transaction.id && styles.highlightedItem]}
                     >
                         <View style={styles.left}>
-                            <Text style={styles.date}>{item.date}</Text>
-                            <Text style={styles.text} numberOfLines={1}>{item.text}</Text>
+                            <Text style={styles.date}>{transaction.date}</Text>
+                            <Text style={styles.text} numberOfLines={1}>{transaction.text}</Text>
                         </View>
                         <View style={styles.right}>
-                            <Text style={[styles.amount, item.amount > 0 ? styles.positive : styles.negative]}>
-                                {item.amount.toLocaleString()} kr
+                            <Text style={[styles.amount, transaction.amount > 0 ? styles.positive : styles.negative]}>
+                                {transaction.amount.toLocaleString()} kr
                             </Text>
-                            {item.category && <Text style={styles.category}>{item.category}</Text>}
+                            {transaction.category && <Text style={styles.category}>{transaction.category}</Text>}
                         </View>
                     </View>
                 ))}
@@ -75,9 +74,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     highlightedItem: {
-        backgroundColor: '#374151', // Lighter gray for highlight
+        backgroundColor: '#374151',
         borderWidth: 1,
-        borderColor: '#60a5fa', // Blue border
+        borderColor: '#60a5fa',
     },
     left: {
         flex: 1,

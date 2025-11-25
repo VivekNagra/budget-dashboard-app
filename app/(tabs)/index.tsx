@@ -37,6 +37,8 @@ export default function HomeScreen() {
     }
   };
 
+
+
   const listRef = React.useRef<any>(null);
   const scrollViewRef = React.useRef<ScrollView>(null);
   const [highlightedId, setHighlightedId] = React.useState<string | null>(null);
@@ -71,10 +73,9 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} ref={scrollViewRef}>
         {isLoading && <ActivityIndicator size="large" color="#fff" style={{ marginBottom: 20 }} />}
 
-        {/* KPI cards */}
         <View style={styles.cardsRow}>
           <View style={styles.card}>
             <Text style={styles.cardLabel}>Income</Text>
@@ -145,18 +146,17 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        {/* Chart Carousel */}
         <ChartCarousel transactions={transactions} />
 
-        {/* Category Chart */}
         <CategoryChart transactions={transactions} />
 
-        {/* Transaction List */}
-        <TransactionList
-          ref={listRef}
-          transactions={transactions}
-          highlightedId={highlightedId}
-        />
+        <View onLayout={(event) => setListLayoutY(event.nativeEvent.layout.y)}>
+          <TransactionList
+            ref={listRef}
+            transactions={transactions}
+            highlightedId={highlightedId}
+          />
+        </View>
 
       </ScrollView>
     </SafeAreaView>

@@ -44,13 +44,10 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
         }
     };
 
-    // Calculate stats derived from transactions
     const monthlyStats = React.useMemo(() => {
         const stats: Record<string, MonthlyStats> = {};
 
         transactions.forEach(t => {
-            // Assuming date is YYYY-MM-DD or DD-MM-YYYY. Let's normalize if needed.
-            // For now assume YYYY-MM-DD
             const month = t.date.substring(0, 7); // YYYY-MM
             if (!stats[month]) {
                 stats[month] = { month, income: 0, expenses: 0 };
@@ -71,18 +68,12 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
         let currentBalance = 0;
 
         if (transactions.length > 0) {
-            // Assuming transactions are sorted by date descending or we find the latest by date
-            // But CSV usually comes sorted. Let's find the max/min amounts.
-
             transactions.forEach(t => {
                 if (!biggestDeposit || t.amount > biggestDeposit.amount) biggestDeposit = t;
                 if (!biggestWithdrawal || t.amount < biggestWithdrawal.amount) biggestWithdrawal = t;
             });
 
-            // Current balance from the latest transaction (first in list if sorted desc, or last if asc)
-            // Usually bank exports are newest first or oldest first. 
-            // Let's assume the order in CSV is preserved. 
-            // If we want the absolute latest date:
+            // Sort by date descending to find the latest balance
             const sortedByDate = [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
             if (sortedByDate.length > 0 && sortedByDate[0].balance !== undefined) {
                 currentBalance = sortedByDate[0].balance;
