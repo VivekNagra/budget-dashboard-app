@@ -1,7 +1,7 @@
 import { Transaction } from '@/constants/types';
 import Papa from 'papaparse';
 
-export const parseCSV = (fileContent: string): Promise<Transaction[]> => {
+export const parseCSV = (fileContent: string, categorizer?: (text: string, amount: number) => string): Promise<Transaction[]> => {
     return new Promise((resolve, reject) => {
         Papa.parse(fileContent, {
             header: true,
@@ -56,13 +56,15 @@ export const parseCSV = (fileContent: string): Promise<Transaction[]> => {
                     }
                     const balance = parseFloat(balanceStr);
 
+                    const category = categorizer ? categorizer(text, amount) : categorizeTransaction(text, amount);
+
                     return {
                         id: `trans-${index}-${Date.now()}`,
                         date: date,
                         text: text,
                         amount: isNaN(amount) ? 0 : amount,
                         currency: currency,
-                        category: categorizeTransaction(text, amount),
+                        category: category,
                         balance: isNaN(balance) ? 0 : balance,
                     };
                 }).filter(Boolean) as Transaction[];
@@ -75,23 +77,37 @@ export const parseCSV = (fileContent: string): Promise<Transaction[]> => {
     });
 };
 
-const categorizeTransaction = (text: string, amount: number): string => {
+export const categorizeTransaction = (text: string, amount: number): string => {
     const lowerText = text.toLowerCase();
     if (amount > 0) return 'Income';
 
-    if (lowerText.includes('netto') || lowerText.includes('rema') || lowerText.includes('fotex') || lowerText.includes('meny') || lowerText.includes('lidl') || lowerText.includes('bilka') || lowerText.includes('superbrugsen') || lowerText.includes('kvickly') || lowerText.includes('fakta') || lowerText.includes('dagligvare')) return 'Groceries';
+    // Groceries
+    if (match(lowerText, ['netto', 'rema', 'fotex', 'føtex', 'meny', 'lidl', 'bilka', 'superbrugsen', 'kvickly', 'fakta', 'dagligvare', 'coop', 'nemlig', 'salling', 'spar', 'min købmand', 'abc lavpris', 'dagli\'brugsen', 'irrma', 'bager', 'lagkagehuset', '7-eleven', 'kiosk'])) return 'Groceries';
 
-    if (lowerText.includes('husleje') || lowerText.includes('bolig') || lowerText.includes('leje') || lowerText.includes('el') || lowerText.includes('vand') || lowerText.includes('varme') || lowerText.includes('internet') || lowerText.includes('bredbånd') || lowerText.includes('forsikring')) return 'Housing';
+    // Housing & Utilities
+    if (match(lowerText, ['husleje', 'bolig', 'leje', 'el', 'vand', 'varme', 'internet', 'bredbånd', 'forsikring', 'tryg', 'topdanmark', 'alka', 'codan', 'if forsikring', 'gf forsikring', 'dong', 'orsted', 'ørsted', 'norlys', 'yousee', 'telenor', 'telia', '3 mobil', 'oister', 'call me', 'boligforening', 'ejendom'])) return 'Housing';
 
-    if (lowerText.includes('transport') || lowerText.includes('dsb') || lowerText.includes('taxi') || lowerText.includes('uber') || lowerText.includes('benzin') || lowerText.includes('tank') || lowerText.includes('parkering') || lowerText.includes('metro')) return 'Transport';
+    // Transport
+    if (match(lowerText, ['transport', 'dsb', 'taxi', 'uber', 'benzin', 'tank', 'parkering', 'metro', 'rejsekort', 'dot', 'easypark', 'q-park', 'apcoa', 'circle k', 'shell', 'ok tank', 'uno-x', 'ingo', 'q8', 'færge', 'molslinjen', 'brobizz', 'storebælt'])) return 'Transport';
 
-    if (lowerText.includes('cafe') || lowerText.includes('restaurant') || lowerText.includes('bar') || lowerText.includes('mcdonalds') || lowerText.includes('burger') || lowerText.includes('pizza') || lowerText.includes('biograf') || lowerText.includes('kino') || lowerText.includes('tivoli')) return 'Leisure';
+    // Leisure & Dining
+    if (match(lowerText, ['cafe', 'restaurant', 'bar', 'mcdonalds', 'burger', 'pizza', 'biograf', 'kino', 'tivoli', 'café', 'coffee', 'starbucks', 'espresso house', 'joe & the juice', 'sunset', 'dominos', 'wolt', 'just eat', 'foodora', 'bar', 'pub', 'diskotek', 'museum', 'zoo', 'koncert', 'ticketmaster', 'billetlugen'])) return 'Leisure';
 
-    if (lowerText.includes('fitness') || lowerText.includes('gym') || lowerText.includes('sport') || lowerText.includes('apotek') || lowerText.includes('læge') || lowerText.includes('tandlæge')) return 'Health';
+    // Health & Wellness
+    if (match(lowerText, ['fitness', 'gym', 'sport', 'apotek', 'læge', 'tandlæge', 'matas', 'sats', 'puregym', 'fitness world', 'loop fitness', 'frisør', 'barber', 'optiker', 'synoptik', 'louis nielsen', 'hospital', 'sygeforsikring'])) return 'Health';
 
-    if (lowerText.includes('tøj') || lowerText.includes('sko') || lowerText.includes('magasin') || lowerText.includes('zalando') || lowerText.includes('hm') || lowerText.includes('zara') || lowerText.includes('ikea') || lowerText.includes('jysk') || lowerText.includes('silvan') || lowerText.includes('bauhaus')) return 'Shopping';
+    // Shopping
+    if (match(lowerText, ['tøj', 'sko', 'magasin', 'zalando', 'hm', 'h&m', 'zara', 'ikea', 'jysk', 'silvan', 'bauhaus', 'jem & fix', 'harald nyborg', 'elgiganten', 'power', 'proshop', 'komplett', 'amazon', 'asos', 'boozt', 'nike', 'adidas', 'sport 24', 'intersport', 'bog & idé', 'imerc', 'kop & kande', 'flying tiger'])) return 'Shopping';
 
-    if (lowerText.includes('netflix') || lowerText.includes('spotify') || lowerText.includes('hbo') || lowerText.includes('disney') || lowerText.includes('viaplay') || lowerText.includes('tv2') || lowerText.includes('apple') || lowerText.includes('google')) return 'Subscriptions';
+    // Subscriptions & Services
+    if (match(lowerText, ['netflix', 'spotify', 'hbo', 'disney', 'viaplay', 'tv2', 'apple', 'google', 'youtube', 'prime video', 'audible', 'storytel', 'podimo', 'dropbox', 'icloud', 'microsoft', 'playstation', 'xbox', 'nintendo', 'steam'])) return 'Subscriptions';
+
+    // Travel
+    if (match(lowerText, ['hotel', 'airbnb', 'booking.com', 'hotels.com', 'expedia', 'momondo', 'sas', 'norwegian', 'ryanair', 'easyjet', 'lufthansa', 'klm', 'travel', 'ferie', 'resort'])) return 'Travel';
 
     return 'Other';
+};
+
+const match = (text: string, keywords: string[]): boolean => {
+    return keywords.some(keyword => text.includes(keyword));
 };

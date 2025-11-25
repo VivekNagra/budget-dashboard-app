@@ -2,16 +2,18 @@ import { AnimatedCard } from '@/components/AnimatedCard';
 import { CategoryChart } from '@/components/CategoryChart';
 import { ChartCarousel } from '@/components/ChartCarousel';
 import { TransactionList } from '@/components/TransactionList';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useTransactions } from '@/context/TransactionContext';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import { Link } from 'expo-router';
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-  const { transactions, monthlyStats, loadTransactionsFromCSV, isLoading, filename, insights } = useTransactions();
+  const { transactions, monthlyStats, loadTransactionsFromCSV, isLoading, insights } = useTransactions();
 
   // Calculate totals for the current month (or latest month with data)
   const currentStats = monthlyStats.length > 0 ? monthlyStats[monthlyStats.length - 1] : { income: 0, expenses: 0, month: 'No Data' };
@@ -64,14 +66,31 @@ export default function HomeScreen() {
       <StatusBar style="light" />
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>Budget Overview</Text>
+          <Text style={styles.headerTitle}>Dashboard</Text>
           <Text style={styles.headerSubtitle}>
-            {filename ? filename : (currentStats.month !== 'No Data' ? currentStats.month : 'Import Data')}
+            {transactions.length} transactions
           </Text>
         </View>
-        <AnimatedCard onPress={handleImportCSV} style={styles.importButton}>
-          <Text style={styles.importButtonText}>Import CSV</Text>
-        </AnimatedCard>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <Link href="/files" asChild>
+            <TouchableOpacity style={styles.iconButton}>
+              <IconSymbol name="folder.fill" size={20} color="white" />
+            </TouchableOpacity>
+          </Link>
+          <Link href="/analysis" asChild>
+            <TouchableOpacity style={styles.iconButton}>
+              <IconSymbol name="chart.bar.fill" size={20} color="white" />
+            </TouchableOpacity>
+          </Link>
+          <Link href="/chat" asChild>
+            <TouchableOpacity style={styles.iconButton}>
+              <IconSymbol name="bubble.left.fill" size={20} color="white" />
+            </TouchableOpacity>
+          </Link>
+          <AnimatedCard onPress={handleImportCSV} style={styles.importButton}>
+            <IconSymbol name="plus" size={20} color="white" />
+          </AnimatedCard>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} ref={scrollViewRef}>
@@ -186,14 +205,19 @@ const styles = StyleSheet.create({
   },
   importButton: {
     backgroundColor: '#374151',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  importButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
+  iconButton: {
+    backgroundColor: '#1f2937',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     paddingHorizontal: 20,

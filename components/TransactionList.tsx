@@ -1,6 +1,8 @@
+import { EditCategoryModal } from '@/components/EditCategoryModal';
 import { Transaction } from '@/constants/types';
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface TransactionListProps {
@@ -14,6 +16,8 @@ export interface TransactionListRef {
 
 export const TransactionList = forwardRef<TransactionListRef, TransactionListProps>(({ transactions, highlightedId }, ref) => {
     const itemPositions = useRef<Record<string, number>>({});
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
 
     useImperativeHandle(ref, () => ({
         getItemY: (id: string) => {
@@ -25,6 +29,11 @@ export const TransactionList = forwardRef<TransactionListRef, TransactionListPro
         itemPositions.current[id] = layout.y;
     };
 
+    const handleTransactionPress = (transaction: Transaction) => {
+        setSelectedTransaction(transaction);
+        setModalVisible(true);
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Recent Transactions</Text>
@@ -34,21 +43,35 @@ export const TransactionList = forwardRef<TransactionListRef, TransactionListPro
                         key={transaction.id}
                         entering={FadeInDown.delay(index * 50).springify()}
                         onLayout={(event) => handleLayout(transaction.id, event.nativeEvent.layout)}
-                        style={[styles.item, highlightedId === transaction.id && styles.highlightedItem]}
                     >
-                        <View style={styles.left}>
-                            <Text style={styles.date}>{transaction.date}</Text>
-                            <Text style={styles.text} numberOfLines={1}>{transaction.text}</Text>
-                        </View>
-                        <View style={styles.right}>
+                        <TouchableOpacity
+                            style={[styles.item, highlightedId === transaction.id && styles.highlightedItem]}
+                            onPress={() => handleTransactionPress(transaction)}
+                        >
+                            <View style={styles.iconContainer}>
+                                <Ionicons
+                                    name={transaction.amount > 0 ? "arrow-down-circle" : "arrow-up-circle"}
+                                    size={24}
+                                    color={transaction.amount > 0 ? "#10b981" : "#ef4444"}
+                                />
+                            </View>
+                            <View style={styles.details}>
+                                <Text style={styles.text} numberOfLines={1}>{transaction.text}</Text>
+                                <Text style={styles.date}>{transaction.date} • {transaction.category || 'Uncategorized'}</Text>
+                            </View>
                             <Text style={[styles.amount, transaction.amount > 0 ? styles.positive : styles.negative]}>
-                                {transaction.amount.toLocaleString()} kr
+                                {transaction.amount > 0 ? "+" : ""}{transaction.amount.toLocaleString()} kr
                             </Text>
-                            {transaction.category && <Text style={styles.category}>{transaction.category}</Text>}
-                        </View>
+                        </TouchableOpacity>
                     </Animated.View>
                 ))}
             </View>
+
+            <EditCategoryModal
+                visible={modalVisible}
+                transaction={selectedTransaction}
+                onClose={() => setModalVisible(false)}
+            />
         </View>
     );
 });
@@ -80,17 +103,17 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#60a5fa',
     },
-    left: {
-        flex: 1,
+    iconContainer: {
         marginRight: 12,
     },
-    right: {
-        alignItems: 'flex-end',
+    details: {
+        flex: 1,
+        marginRight: 12,
     },
     date: {
         color: '#9ca3af',
         fontSize: 12,
-        marginBottom: 4,
+        marginTop: 2,
     },
     text: {
         color: 'white',
@@ -100,11 +123,6 @@ const styles = StyleSheet.create({
     amount: {
         fontSize: 16,
         fontWeight: 'bold',
-    },
-    category: {
-        color: '#6b7280',
-        fontSize: 12,
-        marginTop: 2,
     },
     positive: {
         color: '#22c55e',
