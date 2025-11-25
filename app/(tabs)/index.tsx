@@ -1,3 +1,4 @@
+import { AnimatedCard } from '@/components/AnimatedCard';
 import { CategoryChart } from '@/components/CategoryChart';
 import { ChartCarousel } from '@/components/ChartCarousel';
 import { TransactionList } from '@/components/TransactionList';
@@ -6,7 +7,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -68,9 +69,9 @@ export default function HomeScreen() {
             {filename ? filename : (currentStats.month !== 'No Data' ? currentStats.month : 'Import Data')}
           </Text>
         </View>
-        <TouchableOpacity onPress={handleImportCSV} style={styles.importButton}>
+        <AnimatedCard onPress={handleImportCSV} style={styles.importButton}>
           <Text style={styles.importButtonText}>Import CSV</Text>
-        </TouchableOpacity>
+        </AnimatedCard>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} ref={scrollViewRef}>
@@ -99,10 +100,9 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.cardsRow}>
-          <TouchableOpacity
+          <AnimatedCard
             style={styles.card}
             onPress={() => scrollToTransaction(insights.biggestDeposit)}
-            activeOpacity={0.7}
           >
             <Text style={styles.cardLabel}>Biggest Deposit</Text>
             <Text style={[styles.cardValue, styles.positive]}>
@@ -113,11 +113,10 @@ export default function HomeScreen() {
                 {insights.biggestDeposit.text}
               </Text>
             )}
-          </TouchableOpacity>
-          <TouchableOpacity
+          </AnimatedCard>
+          <AnimatedCard
             style={styles.card}
             onPress={() => scrollToTransaction(insights.biggestWithdrawal)}
-            activeOpacity={0.7}
           >
             <Text style={styles.cardLabel}>Biggest Expense</Text>
             <Text style={[styles.cardValue, styles.negative]}>
@@ -128,7 +127,7 @@ export default function HomeScreen() {
                 {insights.biggestWithdrawal.text}
               </Text>
             )}
-          </TouchableOpacity>
+          </AnimatedCard>
         </View>
 
         <View style={styles.cardFull}>

@@ -1,6 +1,7 @@
 import { Transaction } from '@/constants/types';
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface TransactionListProps {
     transactions: Transaction[];
@@ -28,9 +29,10 @@ export const TransactionList = forwardRef<TransactionListRef, TransactionListPro
         <View style={styles.container}>
             <Text style={styles.title}>Recent Transactions</Text>
             <View style={styles.listContent}>
-                {transactions.map((transaction) => (
-                    <View
+                {transactions.map((transaction, index) => (
+                    <Animated.View
                         key={transaction.id}
+                        entering={FadeInDown.delay(index * 50).springify()}
                         onLayout={(event) => handleLayout(transaction.id, event.nativeEvent.layout)}
                         style={[styles.item, highlightedId === transaction.id && styles.highlightedItem]}
                     >
@@ -44,7 +46,7 @@ export const TransactionList = forwardRef<TransactionListRef, TransactionListPro
                             </Text>
                             {transaction.category && <Text style={styles.category}>{transaction.category}</Text>}
                         </View>
-                    </View>
+                    </Animated.View>
                 ))}
             </View>
         </View>
